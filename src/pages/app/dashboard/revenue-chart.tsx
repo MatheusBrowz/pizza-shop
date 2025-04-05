@@ -18,13 +18,13 @@ import {
 } from "recharts";
 
 const data = [
-  { date: "05/04", revenue: "1200" },
-  { date: "06/04", revenue: "800" },
-  { date: "07/04", revenue: "900" },
-  { date: "08/04", revenue: "400" },
-  { date: "09/04", revenue: "1300" },
-  { date: "10/04", revenue: "800" },
-  { date: "11/04", revenue: "2200" },
+  { date: "05/04", revenue: 1200 },
+  { date: "06/04", revenue: 800 },
+  { date: "07/04", revenue: 900 },
+  { date: "08/04", revenue: 400 },
+  { date: "09/04", revenue: 1300 },
+  { date: "10/04", revenue: 800 },
+  { date: "11/04", revenue: 2200 },
 ];
 
 export function RevenueChart() {
@@ -40,16 +40,7 @@ export function RevenueChart() {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={240}>
-          <LineChart
-            data={data}
-            style={{ fontSize: 12 }}
-            // margin={{
-            //   top: 60,
-            //   right: 30,
-            //   left: 20,
-            //   bottom: 5,
-            // }}
-          >
+          <LineChart data={data} style={{ fontSize: 12 }}>
             <XAxis dataKey="date" tickLine={false} axisLine={false} dy={16} />
             <YAxis
               stroke="#888"
