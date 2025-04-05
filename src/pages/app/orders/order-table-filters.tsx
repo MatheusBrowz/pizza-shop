@@ -15,7 +15,7 @@ export function OrderTableFilters() {
       <span className="text-sm font-semibold">Filtros:</span>
       <Input placeholder="Id do pedido" className="h-8 w-auto" />
       <Input placeholder="Nome do cliente" className="h-8 w-[320px]" />
-      <Select>
+      <Select defaultValue="all">
         <SelectTrigger className="h-8 w-[180px]">
           <SelectValue />
         </SelectTrigger>
