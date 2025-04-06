@@ -14,7 +14,10 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getManagedRestaurant } from "@/api/get-managed-restaurant";
+import {
+  getManagedRestaurant,
+  GetManagedRestaurantResponse,
+} from "@/api/get-managed-restaurant";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +26,7 @@ import { toast } from "sonner";
 
 const storeProfileSchema = z.object({
   name: z.string().min(1),
-  description: z.string(),
+  description: z.string().nullable(),
 });
 
 type StoreProfileSchema = z.infer<typeof storeProfileSchema>;
@@ -32,7 +35,7 @@ export function StoreProfileDialog() {
   const queryClient = useQueryClient();
 
   const { data: managedRestaurant } = useQuery({
-    queryKey: ["managedRestaurant"],
+    queryKey: ["managed-restaurant"],
     queryFn: getManagedRestaurant,
     staleTime: Infinity,
   });
@@ -49,17 +52,38 @@ export function StoreProfileDialog() {
     },
   });
 
-  const { mutateAsync: updateProfileFn } = useMutation({
-    mutationFn: updateProfile,
-    onSuccess(_, { name, description }) {
-      const cached = queryClient.getQueryData(["managedRestaurant"]);
+  function updateManagedRestaurantCache({
+    name,
+    description,
+  }: StoreProfileSchema) {
+    const cached = queryClient.getQueryData<GetManagedRestaurantResponse>([
+      "managed-restaurant",
+    ]);
 
-      if (cached) {
-        queryClient.setQueryData(["managedRestaurant"], {
+    if (cached) {
+      queryClient.setQueryData<GetManagedRestaurantResponse>(
+        ["managed-restaurant"],
+        {
           ...cached,
           name,
           description,
-        });
+        },
+      );
+    }
+
+    return { cached };
+  }
+
+  const { mutateAsync: updateProfileFn } = useMutation({
+    mutationFn: updateProfile,
+    onMutate({ name, description }) {
+      const { cached } = updateManagedRestaurantCache({ name, description });
+
+      return { previousProfile: cached };
+    },
+    onError(_, __, context) {
+      if (context?.previousProfile) {
+        updateManagedRestaurantCache(context.previousProfile);
       }
     },
   });
@@ -105,7 +129,7 @@ export function StoreProfileDialog() {
             </Label>
             <Textarea
               id="description"
-              className="col-span-3"
+              className="col-span-3 h-32"
               {...register("description")}
             ></Textarea>
           </div>
